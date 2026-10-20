@@ -21,9 +21,21 @@ const korean = Nanum_Myeongjo({
   variable: "--font-korean",
 });
 
+// Netlify sets URL to the site's primary address; it makes og:image an absolute URL.
+const SITE_URL = process.env.SITE_URL ?? process.env.URL ?? "https://sealed-letter-for-you.netlify.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "봉인된 편지 · Sealed Letter",
   description: "사진 한 장을 밀랍으로 봉인해 링크로 보내세요.",
+  openGraph: {
+    type: "website",
+    siteName: "Sealed Letter",
+    title: "봉인된 편지 · Sealed Letter",
+    description: "사진 한 장을 밀랍으로 봉인해 링크로 보내세요.",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "밀랍으로 봉인된 편지 봉투" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/og.png"] },
 };
 
 export const viewport: Viewport = {

@@ -37,7 +37,6 @@ export default function Letter({ imageUrl }: { imageUrl: string }) {
   const audioRef = useRef<AudioContext | null>(null);
   const stopEffects = useRef<(() => void)[]>([]);
   const timers = useRef<number[]>([]);
-  const imgRef = useRef<HTMLImageElement>(null);
 
   const clearEffects = () => {
     timers.current.forEach(clearTimeout);
@@ -104,13 +103,11 @@ export default function Letter({ imageUrl }: { imageUrl: string }) {
 
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => measure(e.currentTarget);
 
-  // The image often finishes loading before hydration, so onLoad never fires; check directly.
-  useEffect(() => {
-    const img = imgRef.current;
-    if (!img?.complete) return;
-    if (img.naturalWidth) measure(img);
-    else setFailed(true);
-  }, []);
+  // The photo is only rendered in the browser, never in the server HTML, so link
+  // previews (KakaoTalk, Discord, …) can't pick it up and spoil the surprise.
+  // Mounting it after hydration also guarantees onLoad fires.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const sceneClass = [
     styles.scene,
@@ -175,16 +172,17 @@ export default function Letter({ imageUrl }: { imageUrl: string }) {
                 {failed ? (
                   <p className={styles.photoError}>사진을 불러올 수 없어요</p>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    ref={imgRef}
-                    src={imageUrl}
-                    alt="편지 속 사진"
-                    referrerPolicy="no-referrer"
-                    onLoad={onImageLoad}
-                    onError={() => setFailed(true)}
-                    draggable={false}
-                  />
+                  mounted && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageUrl}
+                      alt="편지 속 사진"
+                      referrerPolicy="no-referrer"
+                      onLoad={onImageLoad}
+                      onError={() => setFailed(true)}
+                      draggable={false}
+                    />
+                  )
                 )}
               </div>
               <span className={`${styles.corner} ${styles.tl}`} />
