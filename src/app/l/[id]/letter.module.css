@@ -1,0 +1,479 @@
+.scene {
+  --w: min(560px, 86vw);
+  --h: calc(var(--w) * 0.5);
+  --pad: calc(var(--w) * 0.022);
+  /* letter size inside the envelope */
+  --lw0: calc(var(--w) * 0.88);
+  --lh0: calc(var(--h) * 0.86);
+  /* letter size once presented, fitted to the photo's aspect ratio */
+  /* leave ~110px at the bottom for the buttons */
+  --maxh: min(74vh, calc(100vh - 180px));
+  --lwF: min(var(--lw0), calc((var(--maxh) - 2 * var(--pad)) * var(--ar) + 2 * var(--pad)));
+  --lhF: calc((var(--lwF) - 2 * var(--pad)) / var(--ar) + 2 * var(--pad));
+  --ease: cubic-bezier(0.6, 0, 0.2, 1);
+
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* ───────── ambience ───────── */
+
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(900px, 160vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(196, 120, 60, 0.16), rgba(120, 30, 30, 0.08) 35%, transparent 65%);
+  animation: flicker 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.85; }
+  30% { opacity: 1; }
+  45% { opacity: 0.75; }
+  70% { opacity: 0.95; }
+}
+
+.embers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.embers span {
+  position: absolute;
+  bottom: -10px;
+  border-radius: 50%;
+  background: #f0a35e;
+  box-shadow: 0 0 6px 2px rgba(240, 140, 70, 0.6);
+  opacity: 0;
+  animation-name: rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes rise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 0.8; }
+  80% { opacity: 0.3; }
+  100% { transform: translate(var(--drift), -105vh); opacity: 0; }
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ───────── envelope ───────── */
+
+.stageArea {
+  position: relative;
+  z-index: 1;
+  /* sits a little low so the rising letter has room above */
+  margin-top: calc(var(--h) * 0.9);
+}
+
+.float {
+  animation: bounce 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-26px) rotate(-1.2deg); }
+  50% { transform: translateY(0) scale(1.03, 0.96); }
+  60% { transform: translateY(-8px) rotate(0.6deg) scale(0.99, 1.01); }
+  72% { transform: translateY(0) scale(1.01, 0.99); }
+  80% { transform: translateY(0); }
+}
+
+.shadow {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: calc(var(--h) * -0.16);
+  height: calc(var(--h) * 0.12);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.75), transparent 70%);
+  animation: shadow 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  transition: opacity 0.8s;
+}
+
+@keyframes shadow {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  30% { transform: scaleX(0.78); opacity: 0.55; }
+  50% { transform: scaleX(1.04); opacity: 1; }
+  60% { transform: scaleX(0.93); opacity: 0.85; }
+  72%, 80% { transform: scaleX(1); opacity: 1; }
+}
+
+.cracked .shadow {
+  animation: none;
+}
+
+.envelope {
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  perspective: 1400px;
+  cursor: pointer;
+  outline: none;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6));
+  transition: transform 1s var(--ease);
+}
+
+.envelope:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 10px;
+}
+
+.cracked .envelope {
+  cursor: default;
+}
+
+/* inside of the envelope */
+.back {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 25% 30%, rgba(196, 162, 101, 0.06) 0 2px, transparent 3px) 0 0 / 22px 22px,
+    radial-gradient(circle at 75% 80%, rgba(196, 162, 101, 0.05) 0 2px, transparent 3px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #0f0507, #1d0a0e);
+  box-shadow: inset 0 0 0 1px rgba(196, 162, 101, 0.25);
+}
+
+.pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ───────── flap ───────── */
+
+.flap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 62%;
+  z-index: 4;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  transition:
+    transform 0.85s var(--ease),
+    z-index 0s linear 0.42s;
+}
+
+.flapFront,
+.flapBack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flapFront {
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.55));
+}
+
+.flapBack {
+  transform: rotateX(180deg);
+}
+
+.flapOpen .flap {
+  transform: rotateX(180deg);
+  /* flips behind the letter once it passes vertical */
+  z-index: 0;
+}
+
+/* ───────── wax seal ───────── */
+
+.seal {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: calc(var(--h) * 0.34);
+  aspect-ratio: 1;
+  z-index: 5;
+  transform: translate(-50%, -54%);
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
+  transition: transform 0.25s;
+}
+
+.envelope:hover .seal {
+  transform: translate(-50%, -54%) scale(1.05);
+}
+
+.cracked .seal {
+  transform: translate(-50%, -54%);
+}
+
+.half {
+  position: absolute;
+  inset: 0;
+}
+
+.halfL {
+  clip-path: polygon(0 0, 53% 0, 46% 20%, 56% 38%, 46% 56%, 55% 76%, 49% 100%, 0 100%);
+}
+
+.halfR {
+  clip-path: polygon(53% 0, 100% 0, 100% 100%, 49% 100%, 55% 76%, 46% 56%, 56% 38%, 46% 20%);
+}
+
+.cracked .halfL {
+  animation: breakLeft 0.9s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
+}
+
+.cracked .halfR {
+  animation: breakRight 0.9s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
+}
+
+@keyframes breakLeft {
+  0% { transform: none; opacity: 1; }
+  15% { transform: translate(-2%, 0) rotate(-3deg); }
+  25% { transform: translate(-5%, -2%) rotate(-6deg); opacity: 1; }
+  100% { transform: translate(-45%, 160%) rotate(-50deg); opacity: 0; }
+}
+
+@keyframes breakRight {
+  0% { transform: none; opacity: 1; }
+  15% { transform: translate(2%, 0) rotate(3deg); }
+  25% { transform: translate(5%, -2%) rotate(6deg); opacity: 1; }
+  100% { transform: translate(45%, 170%) rotate(55deg); opacity: 0; }
+}
+
+/* ───────── letter ───────── */
+
+.letter {
+  position: absolute;
+  z-index: 2;
+  left: calc((var(--w) - var(--lw0)) / 2);
+  top: calc(var(--h) * 0.07);
+  width: var(--lw0);
+  height: var(--lh0);
+  padding: var(--pad);
+  border-radius: 2px;
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(255, 255, 255, 0.35), transparent 50%),
+    radial-gradient(ellipse at 85% 90%, rgba(120, 80, 30, 0.25), transparent 55%),
+    linear-gradient(160deg, var(--parchment), var(--parchment-dark));
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 0 calc(var(--pad) * 1.6) rgba(110, 70, 30, 0.35);
+  transition:
+    transform 1.05s cubic-bezier(0.45, 0.05, 0.3, 1),
+    top 1s var(--ease),
+    left 1s var(--ease),
+    width 1s var(--ease),
+    height 1s var(--ease),
+    box-shadow 1s;
+}
+
+.rising .letter {
+  /* lifts fully out of the pocket */
+  transform: translateY(calc(var(--h) * -1.02));
+}
+
+.presented .letter {
+  z-index: 6;
+  /* centered in the space above the buttons while the envelope sinks by 0.55h
+     (offset derived from the scene's flex layout: margin-top 0.9h + hint below) */
+  top: calc(var(--h) * -0.325 - 44px - var(--lhF) / 2);
+  left: calc((var(--w) - var(--lwF)) / 2);
+  width: var(--lwF);
+  height: var(--lhF);
+  transform: none;
+  cursor: zoom-in;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(196, 162, 101, 0.35),
+    inset 0 0 calc(var(--pad) * 1.6) rgba(110, 70, 30, 0.35);
+}
+
+.presented .envelope {
+  transform: translateY(calc(var(--h) * 0.55));
+}
+
+/* dim the envelope behind the letter (not on .flap itself: a filter there would flatten its 3D) */
+.back,
+.pocket,
+.flapBack {
+  transition: filter 1s, opacity 1s;
+}
+
+.presented .back,
+.presented .pocket,
+.presented .flapBack {
+  filter: brightness(0.55);
+  opacity: 0.18;
+}
+
+.presented .shadow {
+  opacity: 0;
+}
+
+.photo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1a0d0a;
+  box-shadow: 0 0 0 1px rgba(70, 40, 20, 0.55);
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.photoError {
+  margin: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.corner {
+  position: absolute;
+  width: calc(var(--pad) * 2.4);
+  height: calc(var(--pad) * 2.4);
+  border: 1.5px solid var(--gold-dim);
+  pointer-events: none;
+}
+
+.tl { left: calc(var(--pad) * 0.35); top: calc(var(--pad) * 0.35); border-right: 0; border-bottom: 0; }
+.tr { right: calc(var(--pad) * 0.35); top: calc(var(--pad) * 0.35); border-left: 0; border-bottom: 0; }
+.bl { left: calc(var(--pad) * 0.35); bottom: calc(var(--pad) * 0.35); border-right: 0; border-top: 0; }
+.br { right: calc(var(--pad) * 0.35); bottom: calc(var(--pad) * 0.35); border-left: 0; border-top: 0; }
+
+/* ───────── text & controls ───────── */
+
+.hint {
+  margin: calc(var(--h) * 0.35) 0 0;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  animation: breathe 2.6s ease-in-out infinite;
+  transition: opacity 0.4s;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+.cracked .hint {
+  animation: none;
+  opacity: 0;
+}
+
+.actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.6s 0.9s, transform 0.6s 0.9s;
+}
+
+.presented .actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.caption {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.buttons button,
+.buttons a {
+  padding: 9px 18px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  background: rgba(20, 8, 10, 0.75);
+  border: 1px solid rgba(196, 162, 101, 0.45);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.buttons button:hover,
+.buttons a:hover {
+  background: rgba(92, 21, 32, 0.6);
+  border-color: var(--gold);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 2, 3, 0.92);
+  cursor: zoom-out;
+  animation: fade 0.3s ease-out;
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 0 0 1px rgba(196, 162, 101, 0.3), 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float,
+  .shadow,
+  .glow,
+  .embers span,
+  .hint {
+    animation: none !important;
+  }
+}
