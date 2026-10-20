@@ -7,3 +7,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Declared explicitly so the Next.js runtime runs even if Netlify's framework
+# auto-detection is off for this site (otherwise .next is served as static files).
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
