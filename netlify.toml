@@ -1,0 +1,9 @@
+# Netlify detects Next.js from publish = ".next" and runs it through its
+# Next.js runtime (server rendering for /l/[id]); any other publish dir
+# deploys it as a static site and every route 404s.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

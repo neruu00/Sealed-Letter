@@ -38,6 +38,11 @@ npm run dev     # http://localhost:3000
 
 > 무료 플랜은 일정 시간 요청이 없으면 슬립 상태가 되어 첫 접속이 수십 초 걸릴 수 있습니다.
 
+## Netlify 배포
+
+저장소의 `netlify.toml`이 빌드 설정(`npm run build`, publish `.next`)을 지정하므로 Netlify에서 저장소를 연결만 하면 됩니다.
+대시보드에서 Publish directory를 `out` 등으로 바꾸면 정적 사이트로 배포되어 모든 페이지가 404가 되니 주의하세요.
+
 ## 구조
 
 ```
