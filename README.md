@@ -38,6 +38,12 @@ npm run dev     # http://localhost:3000
 
 > 무료 플랜은 일정 시간 요청이 없으면 슬립 상태가 되어 첫 접속이 수십 초 걸릴 수 있습니다.
 
+## Vercel 배포
+
+Vercel에서 저장소를 Import하면 Next.js로 자동 인식되어 별도 설정 없이 배포됩니다.
+링크 미리보기 이미지(og:image) 주소는 Vercel의 프로덕션 도메인을 자동으로 사용하며,
+커스텀 도메인을 쓰면 환경 변수 `SITE_URL`(예: `https://example.com`)로 지정하세요.
+
 ## Netlify 배포
 
 저장소의 `netlify.toml`이 빌드 설정(`npm run build`, publish `.next`)을 지정하므로 Netlify에서 저장소를 연결만 하면 됩니다.

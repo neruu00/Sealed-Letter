@@ -21,8 +21,13 @@ const korean = Nanum_Myeongjo({
   variable: "--font-korean",
 });
 
-// Netlify sets URL to the site's primary address; it makes og:image an absolute URL.
-const SITE_URL = process.env.SITE_URL ?? process.env.URL ?? "https://sealed-letter-for-you.netlify.app";
+// Absolute base for og:image. Vercel exposes the production domain (no protocol),
+// Netlify sets URL; SITE_URL overrides both (e.g. for a custom domain).
+const SITE_URL =
+  process.env.SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
+  process.env.URL ||
+  "https://sealed-letter-six.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
